@@ -80,18 +80,16 @@ chmod +x setup_termux.sh run_termux.sh
 
 ## Configuration
 
-To change the location, edit these constants in `solar_predictor.py`:
+Edit `config.py` to customize the predictor:
 
 ```python
-LATITUDE = 40.4930      # Your latitude
-LONGITUDE = -3.8740     # Your longitude
+# Location coordinates
+LATITUDE = 40.4930
+LONGITUDE = -3.8740
 LOCATION_NAME = "Las Rozas de Madrid"
-```
 
-To change the forecast period:
-
-```python
-FORECAST_DAYS = 5       # Number of days to show
+# Number of days to forecast (1-16, Open-Meteo supports up to 16 days)
+FORECAST_DAYS = 7
 ```
 
 ## How It Works

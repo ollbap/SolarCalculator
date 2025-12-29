@@ -12,13 +12,8 @@ from datetime import datetime, timedelta
 from urllib.request import urlopen
 from urllib.error import URLError
 
-# Las Rozas de Madrid coordinates
-LATITUDE = 40.4930
-LONGITUDE = -3.8740
-LOCATION_NAME = "Las Rozas de Madrid"
-
-# Number of days to forecast
-FORECAST_DAYS = 5
+# Import configuration from config.py
+from config import LATITUDE, LONGITUDE, LOCATION_NAME, FORECAST_DAYS
 
 # Solar constant (W/m²)
 SOLAR_CONSTANT = 1361
@@ -286,7 +281,7 @@ def format_table(data, dates, hours, max_values, clear_sky_totals, actual_totals
     
     def colorize_pct(pct):
         """Apply color based on percentage value."""
-        pct_str = f"{pct:>5}%"
+        pct_str = f"{pct:>3}%"
         if pct >= 80:
             return f"{BRIGHT_GREEN}{pct_str}{RESET}"
         elif pct >= 60:
@@ -301,54 +296,55 @@ def format_table(data, dates, hours, max_values, clear_sky_totals, actual_totals
     lines = []
     
     # Title
-    lines.append(f"Solar Irradiance - {LOCATION_NAME}")
+    lines.append(f"Solar - {LOCATION_NAME}")
     lines.append("")
     
-    # Header with day names and dates
-    header = "       "
+    # Header with day names only (no date number)
+    header = "      "
     for date in dates:
-        day_str = date.strftime("%a %d")
-        header += f"  {day_str:>6}"
+        day_str = date.strftime("%a")
+        header += f" {day_str:>4}"
     lines.append(header)
     
     # Separator
-    sep_width = 7 + len(dates) * 8
-    lines.append("  " + "─" * (sep_width - 2))
+    sep_width = 6 + len(dates) * 5
+    lines.append(" " + "─" * (sep_width - 1))
     
     # Total daily irradiation row (Wh/m²)
-    total_row = " TOTAL:"
+    total_row = "TOTAL:"
     for date in dates:
         date_str = date.strftime("%Y-%m-%d")
         total_val = actual_totals.get(date_str, 0)
-        total_row += f"  {int(total_val):>6}"
+        total_row += f" {int(total_val):>4}"
     lines.append(total_row)
     
     # Day efficiency row (actual vs clear-sky percentage)
-    eff_row = "   EFF:"
+    eff_row = "  EFF:"
     for date in dates:
         date_str = date.strftime("%Y-%m-%d")
         clear_total = clear_sky_totals.get(date_str, 0)
         actual_total = actual_totals.get(date_str, 0)
         if clear_total > 0:
             eff_pct = int(round(actual_total / clear_total * 100))
-            eff_row += f"  {colorize_pct(eff_pct)}"
+            eff_row += f" {colorize_pct(eff_pct)}"
         else:
-            eff_row += f"  {'--':>6}"
+            eff_row += f" {'--':>4}"
     lines.append(eff_row)
     
     # MAX row (clear-sky peak in W/m²)
-    max_row = f"  {DIM} MAX:{RESET}"
+    max_row = f"{DIM}  MAX:"
     for date in dates:
         max_val = max_values.get(date.strftime("%Y-%m-%d"), 0)
-        max_row += f"  {DIM}{int(max_val):>6}{RESET}"
+        max_row += f" {int(max_val):>4}"
+    max_row += f"{RESET}"
     lines.append(max_row)
     
     # Separator
-    lines.append("  " + "─" * (sep_width - 2))
+    lines.append(" " + "─" * (sep_width - 1))
     
     # Data rows (as colored percentage of daily MAX)
     for hour in hours:
-        row = f"  {hour:02d}:00 "
+        row = f" {hour:02d}:00"
         for date in dates:
             date_str = date.strftime("%Y-%m-%d")
             key = f"{date_str}T{hour:02d}:00"
@@ -356,10 +352,10 @@ def format_table(data, dates, hours, max_values, clear_sky_totals, actual_totals
             max_val = max_values.get(date_str, 0)
             
             if val is None or val <= 0 or max_val <= 0:
-                row += f"  {DIM}{'--':>6}{RESET}"
+                row += f" {DIM}{'--':>4}{RESET}"
             else:
                 pct = int(round(val / max_val * 100))
-                row += f"  {colorize_pct(pct)}"
+                row += f" {colorize_pct(pct)}"
         lines.append(row)
     
     # Legend

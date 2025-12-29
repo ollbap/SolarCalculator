@@ -59,6 +59,7 @@ Solar Irradiance - Las Rozas de Madrid
 | File | Purpose |
 |------|---------|
 | `solar_predictor.py` | Main script with all logic |
+| `config.py` | Configuration (location, forecast days) |
 | `requirements.txt` | Python dependencies (none required) |
 | `setup.sh` | Desktop setup: creates venv and installs deps |
 | `setup_termux.sh` | Termux setup: installs Python and deps directly |
