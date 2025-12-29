@@ -1,0 +1,4 @@
+# Solar Predictor Dependencies
+# Note: This project uses only Python standard library (urllib, json, math, datetime)
+# No external packages required!
+
