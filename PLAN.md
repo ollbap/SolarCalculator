@@ -7,33 +7,37 @@ Build a Python script that calculates estimated solar irradiance (W/m²) for Las
 - **Open-Meteo API** for hourly cloud coverage forecasts (free, no API key)
 
 Display a compact table with:
-- **Header row**: MAX clear-sky irradiance in W/m² (theoretical maximum)
-- **Data rows**: Percentage of MAX achieved (adjusted for clouds)
+- **TOTAL row**: Daily irradiation in Wh/m²
+- **EFF row**: Day efficiency (actual vs clear-sky percentage, colored)
+- **MAX row**: Peak clear-sky irradiance in W/m²
+- **Data rows**: Colored percentage of MAX at each hour
 - **Columns**: Today + next 4 days (5 days total)
 
 ## Output Example
 
 ```
 Solar Irradiance - Las Rozas de Madrid
-MAX (W/m²) = clear-sky reference | Values = % of MAX
 
-           Mon 30  Tue 31  Wed 01  Thu 02  Fri 03
-  MAX:       650     655     660     665     670
+         Mon 30  Tue 31  Wed 01  Thu 02  Fri 03
   ─────────────────────────────────────────────
-  08:00        3%      7%      8%      4%      9%
-  09:00       17%     32%     34%     18%     36%
-  10:00       32%     61%     65%     33%     67%
-  11:00       45%     86%     89%     45%     91%
-  12:00       50%     96%    100%     50%    100%
-  13:00       48%     92%     95%     48%     97%
-  14:00       40%     76%     80%     41%     82%
-  15:00       29%     57%     59%     30%     61%
-  16:00       16%     31%     33%     17%     35%
-  17:00       14%     25%     26%     12%     24%
+ TOTAL:    1328     992     732     356     890
+   EFF:     95%     71%     52%     25%     64%
+   MAX:     296     297     298     300     305
+  ─────────────────────────────────────────────
+  08:00      0%      0%      0%      0%      0%
+  09:00     11%     12%      7%      4%      8%
+  10:00     37%     35%     18%     13%     28%
+  11:00     85%     55%     38%     21%     52%
+  12:00    100%     66%     56%     25%     72%
+  ...
 ```
 
-- **MAX row**: Clear-sky reference in W/m²
-- **Hourly values**: Percentage of MAX (100% = clear, lower = clouds)
+### Color Legend (in terminal)
+- **Green (≥80%)**: Excellent solar conditions
+- **Light Green (≥60%)**: Good conditions
+- **Yellow (≥40%)**: Moderate conditions
+- **Orange (≥20%)**: Poor conditions
+- **Red (<20%)**: Very poor conditions
 
 ## Technical Approach
 

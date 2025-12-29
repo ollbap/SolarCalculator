@@ -270,16 +270,38 @@ def apply_cloud_factor(clear_sky_irradiance, cloud_cover_percent):
     return clear_sky_irradiance * reduction
 
 
-def format_table(data, dates, hours, max_values):
+def format_table(data, dates, hours, max_values, clear_sky_totals, actual_totals):
     """
     Format the irradiance data as a compact table for terminal display.
-    Shows MAX in W/m² and hourly values as percentage of MAX.
+    Shows MAX in W/m², daily totals, and hourly values as colored percentages.
     """
+    # ANSI color codes
+    RESET = "\033[0m"
+    RED = "\033[91m"
+    ORANGE = "\033[93m"
+    YELLOW = "\033[33m"
+    GREEN = "\033[92m"
+    BRIGHT_GREEN = "\033[32m"
+    DIM = "\033[2m"
+    
+    def colorize_pct(pct):
+        """Apply color based on percentage value."""
+        pct_str = f"{pct:>5}%"
+        if pct >= 80:
+            return f"{BRIGHT_GREEN}{pct_str}{RESET}"
+        elif pct >= 60:
+            return f"{GREEN}{pct_str}{RESET}"
+        elif pct >= 40:
+            return f"{YELLOW}{pct_str}{RESET}"
+        elif pct >= 20:
+            return f"{ORANGE}{pct_str}{RESET}"
+        else:
+            return f"{RED}{pct_str}{RESET}"
+    
     lines = []
     
     # Title
     lines.append(f"Solar Irradiance - {LOCATION_NAME}")
-    lines.append("MAX (W/m²) = clear-sky reference | Values = % of MAX")
     lines.append("")
     
     # Header with day names and dates
@@ -289,18 +311,42 @@ def format_table(data, dates, hours, max_values):
         header += f"  {day_str:>6}"
     lines.append(header)
     
-    # MAX row (in W/m²)
-    max_row = "  MAX: "
-    for date in dates:
-        max_val = max_values.get(date.strftime("%Y-%m-%d"), 0)
-        max_row += f"  {int(max_val):>6}"
-    lines.append(max_row)
-    
     # Separator
     sep_width = 7 + len(dates) * 8
     lines.append("  " + "─" * (sep_width - 2))
     
-    # Data rows (as percentage of daily MAX)
+    # Total daily irradiation row (Wh/m²)
+    total_row = " TOTAL:"
+    for date in dates:
+        date_str = date.strftime("%Y-%m-%d")
+        total_val = actual_totals.get(date_str, 0)
+        total_row += f"  {int(total_val):>6}"
+    lines.append(total_row)
+    
+    # Day efficiency row (actual vs clear-sky percentage)
+    eff_row = "   EFF:"
+    for date in dates:
+        date_str = date.strftime("%Y-%m-%d")
+        clear_total = clear_sky_totals.get(date_str, 0)
+        actual_total = actual_totals.get(date_str, 0)
+        if clear_total > 0:
+            eff_pct = int(round(actual_total / clear_total * 100))
+            eff_row += f"  {colorize_pct(eff_pct)}"
+        else:
+            eff_row += f"  {'--':>6}"
+    lines.append(eff_row)
+    
+    # MAX row (clear-sky peak in W/m²)
+    max_row = f"  {DIM} MAX:{RESET}"
+    for date in dates:
+        max_val = max_values.get(date.strftime("%Y-%m-%d"), 0)
+        max_row += f"  {DIM}{int(max_val):>6}{RESET}"
+    lines.append(max_row)
+    
+    # Separator
+    lines.append("  " + "─" * (sep_width - 2))
+    
+    # Data rows (as colored percentage of daily MAX)
     for hour in hours:
         row = f"  {hour:02d}:00 "
         for date in dates:
@@ -310,11 +356,16 @@ def format_table(data, dates, hours, max_values):
             max_val = max_values.get(date_str, 0)
             
             if val is None or val <= 0 or max_val <= 0:
-                row += f"  {'--':>6}"
+                row += f"  {DIM}{'--':>6}{RESET}"
             else:
                 pct = int(round(val / max_val * 100))
-                row += f"  {pct:>5}%"
+                row += f"  {colorize_pct(pct)}"
         lines.append(row)
+    
+    # Legend
+    lines.append("")
+    lines.append(f"TOTAL: Daily irradiation (Wh/m²) | EFF: Day efficiency vs clear-sky")
+    lines.append(f"MAX: Peak clear-sky (W/m²) | Colors: {BRIGHT_GREEN}≥80%{RESET} {GREEN}≥60%{RESET} {YELLOW}≥40%{RESET} {ORANGE}≥20%{RESET} {RED}<20%{RESET}")
     
     return "\n".join(lines)
 
@@ -347,10 +398,14 @@ def main():
     # Calculate irradiance for each hour
     irradiance_data = {}
     max_values = {}
+    clear_sky_totals = {}
+    actual_totals = {}
     
     for date in dates:
         date_str = date.strftime("%Y-%m-%d")
         daily_max = 0
+        daily_clear_sky_total = 0
+        daily_actual_total = 0
         
         for hour in hours:
             dt = date.replace(hour=hour)
@@ -363,18 +418,26 @@ def main():
             if clear_sky > daily_max:
                 daily_max = clear_sky
             
+            # Add to daily clear-sky total
+            daily_clear_sky_total += clear_sky
+            
             # Apply cloud factor
             time_key = f"{date_str}T{hour:02d}:00"
             cloud_cover = cloud_data.get(time_key, 0)
             adjusted = apply_cloud_factor(clear_sky, cloud_cover)
             
+            # Add to daily actual total
+            daily_actual_total += adjusted
+            
             irradiance_data[time_key] = adjusted
         
         max_values[date_str] = daily_max
+        clear_sky_totals[date_str] = daily_clear_sky_total
+        actual_totals[date_str] = daily_actual_total
     
     # Display table
     print()
-    print(format_table(irradiance_data, dates, hours, max_values))
+    print(format_table(irradiance_data, dates, hours, max_values, clear_sky_totals, actual_totals))
     print()
 
 
