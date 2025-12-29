@@ -295,16 +295,23 @@ def format_table(data, dates, hours, max_values, clear_sky_totals, actual_totals
     
     lines = []
     
-    # Title
-    lines.append(f"Solar - {LOCATION_NAME}")
+    # Title with current date
+    today = datetime.now()
+    lines.append(f"Solar - {LOCATION_NAME} - {today.strftime('%a %d %b %Y')}")
     lines.append("")
     
-    # Header with day names only (no date number)
+    # Header row 1: day names
     header = "      "
     for date in dates:
         day_str = date.strftime("%a")
         header += f" {day_str:>4}"
     lines.append(header)
+    
+    # Header row 2: day of month
+    day_nums = "      "
+    for date in dates:
+        day_nums += f" {date.day:>4}"
+    lines.append(day_nums)
     
     # Separator
     sep_width = 6 + len(dates) * 5
