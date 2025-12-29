@@ -13,25 +13,28 @@ A Python script that displays hourly solar irradiance forecasts for Las Rozas de
 ## Output Example
 
 ```
-Solar Irradiance (W/m²) - Las Rozas de Madrid
-Cloud-adjusted values | MAX = clear-sky reference
+Solar Irradiance - Las Rozas de Madrid
+MAX (W/m²) = clear-sky reference | Values = % of MAX
 
        Mon 30  Tue 31  Wed 01  Thu 02  Fri 03
   MAX:    650     655     660     665     670
   ─────────────────────────────────────────────
-  08:00    22      45      52      28      58
-  09:00   108     210     225     115     235
-  10:00   210     400     430     220     440
-  11:00   290     560     590     300     600
-  12:00   325     630     660     335     670
-  13:00   310     600     630     320     640
-  14:00   260     500     530     270     540
-  15:00   190     370     390     200     400
-  16:00   105     200     220     113     230
-  17:00    90     165     170      83     160
+  08:00     3%      7%      8%      4%      9%
+  09:00    17%     32%     34%     18%     36%
+  10:00    32%     61%     65%     33%     67%
+  11:00    45%     86%     89%     45%     91%
+  12:00    50%     96%    100%     50%    100%
+  13:00    48%     92%     95%     48%     97%
+  14:00    40%     76%     80%     41%     82%
+  15:00    29%     57%     59%     30%     61%
+  16:00    16%     31%     33%     17%     35%
+  17:00    14%     25%     26%     12%     24%
 ```
 
-The **MAX** row shows theoretical clear-sky maximum for each day. Compare hourly values against MAX to see cloud impact (e.g., 325 vs 650 MAX = ~50% reduction due to clouds).
+- **MAX row**: Theoretical clear-sky maximum in W/m² (absolute reference)
+- **Hourly values**: Percentage of MAX achieved after cloud adjustment
+
+A value of 100% means clear sky at that hour. Lower percentages indicate cloud cover reducing solar irradiance.
 
 ## Quick Start
 

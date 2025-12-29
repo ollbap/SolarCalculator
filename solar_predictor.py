@@ -273,12 +273,13 @@ def apply_cloud_factor(clear_sky_irradiance, cloud_cover_percent):
 def format_table(data, dates, hours, max_values):
     """
     Format the irradiance data as a compact table for terminal display.
+    Shows MAX in W/m² and hourly values as percentage of MAX.
     """
     lines = []
     
     # Title
-    lines.append(f"Solar Irradiance (W/m²) - {LOCATION_NAME}")
-    lines.append("Cloud-adjusted values | MAX = clear-sky reference")
+    lines.append(f"Solar Irradiance - {LOCATION_NAME}")
+    lines.append("MAX (W/m²) = clear-sky reference | Values = % of MAX")
     lines.append("")
     
     # Header with day names and dates
@@ -288,7 +289,7 @@ def format_table(data, dates, hours, max_values):
         header += f"  {day_str:>6}"
     lines.append(header)
     
-    # MAX row
+    # MAX row (in W/m²)
     max_row = "  MAX: "
     for date in dates:
         max_val = max_values.get(date.strftime("%Y-%m-%d"), 0)
@@ -299,16 +300,20 @@ def format_table(data, dates, hours, max_values):
     sep_width = 7 + len(dates) * 8
     lines.append("  " + "─" * (sep_width - 2))
     
-    # Data rows
+    # Data rows (as percentage of daily MAX)
     for hour in hours:
         row = f"  {hour:02d}:00 "
         for date in dates:
-            key = f"{date.strftime('%Y-%m-%d')}T{hour:02d}:00"
+            date_str = date.strftime("%Y-%m-%d")
+            key = f"{date_str}T{hour:02d}:00"
             val = data.get(key)
-            if val is None or val <= 0:
+            max_val = max_values.get(date_str, 0)
+            
+            if val is None or val <= 0 or max_val <= 0:
                 row += f"  {'--':>6}"
             else:
-                row += f"  {int(val):>6}"
+                pct = int(round(val / max_val * 100))
+                row += f"  {pct:>5}%"
         lines.append(row)
     
     return "\n".join(lines)

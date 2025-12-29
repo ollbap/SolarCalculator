@@ -7,29 +7,33 @@ Build a Python script that calculates estimated solar irradiance (W/m²) for Las
 - **Open-Meteo API** for hourly cloud coverage forecasts (free, no API key)
 
 Display a compact table with:
-- **Header row**: MAX clear-sky irradiance for each day (theoretical maximum)
-- **Data rows**: Cloud-adjusted irradiance by hour
+- **Header row**: MAX clear-sky irradiance in W/m² (theoretical maximum)
+- **Data rows**: Percentage of MAX achieved (adjusted for clouds)
 - **Columns**: Today + next 4 days (5 days total)
 
 ## Output Example
 
 ```
-Solar Irradiance (W/m²) - Las Rozas de Madrid
-Cloud-adjusted values | MAX = clear-sky reference
+Solar Irradiance - Las Rozas de Madrid
+MAX (W/m²) = clear-sky reference | Values = % of MAX
+
            Mon 30  Tue 31  Wed 01  Thu 02  Fri 03
   MAX:       650     655     660     665     670
   ─────────────────────────────────────────────
-  08:00       22      45      52      28      58
-  09:00      108     210     225     115     235
-  10:00      210     400     430     220     440
-  11:00      290     560     590     300     600
-  12:00      325     630     660     335     670
-  13:00      310     600     630     320     640
-  14:00      260     500     530     270     540
-  15:00      190     370     390     200     400
-  16:00      105     200     220     113     230
-  17:00       90     165     170      83     160
+  08:00        3%      7%      8%      4%      9%
+  09:00       17%     32%     34%     18%     36%
+  10:00       32%     61%     65%     33%     67%
+  11:00       45%     86%     89%     45%     91%
+  12:00       50%     96%    100%     50%    100%
+  13:00       48%     92%     95%     48%     97%
+  14:00       40%     76%     80%     41%     82%
+  15:00       29%     57%     59%     30%     61%
+  16:00       16%     31%     33%     17%     35%
+  17:00       14%     25%     26%     12%     24%
 ```
+
+- **MAX row**: Clear-sky reference in W/m²
+- **Hourly values**: Percentage of MAX (100% = clear, lower = clouds)
 
 ## Technical Approach
 
